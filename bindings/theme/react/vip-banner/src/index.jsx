@@ -1,5 +1,5 @@
-import * as ProductList from './sections/vip-banner';
+import * as ProductList from './sections/product-list';
 
 export default {
-    'vip-home': { ...ProductList, },
+    'product-list': { ...ProductList, },
 }
