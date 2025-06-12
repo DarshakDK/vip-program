@@ -50,7 +50,13 @@ const Configure = () => {
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="w-full text-center md:text-left">
             <h1 className="!text-3xl font-extrabold text-gray-900 mb-1 tracking-tight">Configure VIP Extension</h1>
-            <p className="text-gray-500 !text-base">Manage your access configuration, VIP products, and Plans</p>
+
+          
+            <p className="text-gray-500 !text-base flex gap-1">Manage your access configuration, VIP products, and Plans</p>
+
+            <p className="text-gray-500 !text-base">
+              <span className="font-semibold text-black">Prerequisite : </span>
+              Create/Update product with tags vip_product and n_days  where n is membership days  eg.30</p>
           </div>
         </div>
 
