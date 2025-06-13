@@ -122,6 +122,9 @@ export function Component({ title = "VIP Products" }) {
     const now = new Date();
     const startDate = new Date(campaign.startDate);
     const endDate = new Date(campaign.endDate);
+    if (campaign.type === "CUSTOM_PROMOTIONS") {
+      return false;
+    }
     return now >= startDate && now <= endDate;
   };
 

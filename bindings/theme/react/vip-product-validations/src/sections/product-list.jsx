@@ -642,7 +642,7 @@ export function Component({ props }) {
   const validateVIPUser = async () => {
     try {
       const response = await fetch(
-        `https://fetch-db-data-d9ca324b.serverless.boltic.app?module=users&companyId=${COMPANY_ID}&queryType=validate&id=${USER_ID}&applicationId=6838178d9fdd289461be895e`,
+        `https://fetch-db-data-d9ca324b.serverless.boltic.app?module=users&companyId=${COMPANY_ID}&queryType=validate&id=${USER_ID}&applicationId=${APPLICATION_ID}`,
         {
           method: "GET",
           headers: {
@@ -668,7 +668,9 @@ export function Component({ props }) {
     const now = new Date();
     const startDate = new Date(campaign.startDate);
     const endDate = new Date(campaign.endDate);
-
+    if (campaign.type === "CUSTOM_PROMOTIONS") {
+      return false;
+    }
     return now >= startDate && now <= endDate;
   };
 
@@ -812,14 +814,14 @@ export function Component({ props }) {
     //   activeCampaign.products.map((product) => product.item_code?.toLowerCase())
     // );
 
-    const activeCampaignTest = [
-      {
-        item_code: "marv5rue_KD",
-      },
-    ];
+    // const activeCampaignTest = [
+    //   {
+    //     item_code: "marv5rue_KD",
+    //   },
+    // ];
 
     const campaignProductCodes = new Set(
-      activeCampaignTest.map((product) => product.item_code?.toLowerCase())
+      activeCampaign.products.map((product) => product.item_code?.toLowerCase())
     );
 
     // If product is VIP-only and user is not VIP

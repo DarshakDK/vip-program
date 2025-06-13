@@ -582,11 +582,10 @@ const CART_DETAILS = `query Cart($areaCode: String, $assignCardId: Int, $include
 }
 `;
 
-
 export function Component({ props }) {
   console.log(": drafting 5");
   const fpi = useFPI();
-    const state = fpi.store.getState();
+  const state = fpi.store.getState();
   const navigate = useNavigate();
   // const { alert } = useSnackbar();
   const [campaignData, setCampaignData] = useState(null);
@@ -601,8 +600,11 @@ export function Component({ props }) {
 
   // Get dynamic IDs from platform data
   const COMPANY_ID = fpi.getters.THEME(state)?.company_id || "10253";
-  const APPLICATION_ID = fpi.getters.THEME(state)?.application_id || "6828309ae4f8062f0c847089";
-  const USER_ID = useGlobalStore(fpi.getters.USER_DATA)?.user_id || "683817d98fbf32007a149c91";
+  const APPLICATION_ID =
+    fpi.getters.THEME(state)?.application_id || "6828309ae4f8062f0c847089";
+  const USER_ID =
+    useGlobalStore(fpi.getters.USER_DATA)?.user_id ||
+    "683817d98fbf32007a149c91";
 
   console.log("pageDetails", pageDetails);
   console.log("using fpi in vip validations", fpi);
@@ -667,7 +669,9 @@ export function Component({ props }) {
     const now = new Date();
     const startDate = new Date(campaign.startDate);
     const endDate = new Date(campaign.endDate);
-
+      if (campaign.type === "CUSTOM_PROMOTIONS") {
+      return false;
+    }
     return now >= startDate && now <= endDate;
   };
 
@@ -793,7 +797,7 @@ export function Component({ props }) {
     }
 
     const productData = PRODUCT;
-    
+
     const productItemCode = productData?.item_code?.toLowerCase();
 
     console.log("Product page validation:", {
@@ -807,19 +811,19 @@ export function Component({ props }) {
     }
 
     // Create a set of campaign product codes for quick lookup
-    // const campaignProductCodes = new Set(
-    //   activeCampaign.products.map((product) => product.item_code?.toLowerCase())
-    // );
-
-    const activeCampaignTest = [
-      {
-        item_code: "marv5rue_KD",
-      },
-    ];
-
     const campaignProductCodes = new Set(
-      activeCampaignTest.map((product) => product.item_code?.toLowerCase())
+      activeCampaign.products.map((product) => product.item_code?.toLowerCase())
     );
+
+    // const activeCampaignTest = [
+    //   {
+    //     item_code: "marv5rue_KD",
+    //   },
+    // ];
+
+    // const campaignProductCodes = new Set(
+    //   activeCampaignTest.map((product) => product.item_code?.toLowerCase())
+    // );
 
     // If product is VIP-only and user is not VIP
     if (campaignProductCodes.has(productItemCode) && !isVipUser) {

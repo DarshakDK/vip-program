@@ -73,19 +73,15 @@ export function Component({ props, globalConfig }) {
   } = props;
 
   // Get company and application IDs from platform data
-  const getCompanyAndAppId = () => {
-    const application_id = fpi.getters.THEME(state)?.application_id;
-    const company_id = fpi.getters.THEME(state)?.company_id;
-    const companyId = "10253";
-    const applicationId = "6838178d9fdd289461be895e";
-    return { companyId, applicationId };
-  };
+
+  const companyId = fpi.getters.THEME(state)?.company_id || "10253";
+  const applicationId =
+    fpi.getters.THEME(state)?.application_id || "6828309ae4f8062f0c847089";
 
   // Fetch benefits from Boltic API
   const fetchBenefits = async () => {
     try {
       setLoading(true);
-      const { companyId, applicationId } = getCompanyAndAppId();
 
       const queryParams = new URLSearchParams({
         module: "configs",
@@ -328,7 +324,9 @@ export function Component({ props, globalConfig }) {
                 style={cardStyle}
               >
                 <div
-                  className={`${styles["benefit-icon"]} ${styles[`benefit-icon-${index + 1}`]}`}
+                  className={`${styles["benefit-icon"]} ${
+                    styles[`benefit-icon-${index + 1}`]
+                  }`}
                 >
                   {getBenefitIcon(benefit) ? (
                     typeof getBenefitIcon(benefit) === "string" &&
@@ -375,7 +373,9 @@ export function Component({ props, globalConfig }) {
 
                 <div className={styles["benefit-status"]}>
                   <button
-                    className={`${styles["status-badge"]} ${styles[getStatusBadge().className]}`}
+                    className={`${styles["status-badge"]} ${
+                      styles[getStatusBadge().className]
+                    }`}
                   >
                     {getStatusBadge().text}
                   </button>

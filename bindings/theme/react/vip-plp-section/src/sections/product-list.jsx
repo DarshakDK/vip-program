@@ -4,124 +4,128 @@ import { useGlobalStore, useFPI } from "fdk-core/utils";
 import styles from "../styles/style.css";
 
 export function Component({ props }) {
- console.log(": VIP PLP Protection Component 2");
- const fpi = useFPI();
-   const state = fpi.store.getState();
- const [campaignData, setCampaignData] = useState(null);
- const [userValidation, setUserValidation] = useState(null);
- const [loading, setLoading] = useState(true);
- const [error, setError] = useState(null);
- const [observer, setObserver] = useState(null);
- 
- const application_id = fpi.getters.THEME(state)?.application_id;
- const company_id = fpi.getters.THEME(state)?.company_id;
+  console.log(": VIP PLP Protection Component 2");
+  const fpi = useFPI();
+  const state = fpi.store.getState();
+  const [campaignData, setCampaignData] = useState(null);
+  const [userValidation, setUserValidation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [observer, setObserver] = useState(null);
 
- const COMPANY_ID = company_id || "10253";
- const APPLICATION_ID = application_id || "6828309ae4f8062f0c847089";
+  const application_id = fpi.getters.THEME(state)?.application_id;
+  const company_id = fpi.getters.THEME(state)?.company_id;
 
- const pageDetails = useGlobalStore(fpi.getters.PAGE);
- const productsListData = useGlobalStore(fpi?.getters?.PRODUCTS);
+  const COMPANY_ID = company_id || "10253";
+  const APPLICATION_ID = application_id || "6828309ae4f8062f0c847089";
 
- // Get user ID dynamically
- const USER_ID = useGlobalStore(fpi.getters.USER_DATA)?.user_id || "683817d98fbf32007a149c91";
- console.log("pageDetails", pageDetails);
- console.log("productsListData>>>", productsListData);
+  const pageDetails = useGlobalStore(fpi.getters.PAGE);
+  const productsListData = useGlobalStore(fpi?.getters?.PRODUCTS);
 
- // Function to fetch campaign data
- const fetchCampaignData = async () => {
-   try {
-     const response = await fetch(
-       `https://fetch-db-data-d9ca324b.serverless.boltic.app?companyId=${COMPANY_ID}&module=campaigns`,
-       {
-         method: "GET",
-         headers: {
-           "Content-Type": "application/json",
-         },
-       }
-     );
+  // Get user ID dynamically
+  const USER_ID =
+    useGlobalStore(fpi.getters.USER_DATA)?.user_id ||
+    "683817d98fbf32007a149c91";
+  console.log("pageDetails", pageDetails);
+  console.log("productsListData>>>", productsListData);
 
-     if (!response.ok) {
-       throw new Error("Failed to fetch campaign data");
-     }
+  // Function to fetch campaign data
+  const fetchCampaignData = async () => {
+    try {
+      const response = await fetch(
+        `https://fetch-db-data-d9ca324b.serverless.boltic.app?companyId=${COMPANY_ID}&module=campaigns`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-     const data = await response.json();
-     return data;
-   } catch (error) {
-     console.error("Error fetching campaign data:", error);
-     throw error;
-   }
- };
+      if (!response.ok) {
+        throw new Error("Failed to fetch campaign data");
+      }
 
- // Function to validate VIP user
- const validateVIPUser = async () => {
-   try {
-     const response = await fetch(
-       `https://fetch-db-data-d9ca324b.serverless.boltic.app?module=users&companyId=${COMPANY_ID}&queryType=validate&id=${USER_ID}&applicationId=${APPLICATION_ID}`,
-       {
-         method: "GET",
-         headers: {
-           "Content-Type": "application/json",
-         },
-       }
-     );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching campaign data:", error);
+      throw error;
+    }
+  };
 
-     if (!response.ok) {
-       throw new Error("Failed to validate VIP user");
-     }
+  // Function to validate VIP user
+  const validateVIPUser = async () => {
+    try {
+      const response = await fetch(
+        `https://fetch-db-data-d9ca324b.serverless.boltic.app?module=users&companyId=${COMPANY_ID}&queryType=validate&id=${USER_ID}&applicationId=${APPLICATION_ID}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-     const data = await response.json();
-     return data;
-   } catch (error) {
-     console.error("Error validating VIP user:", error);
-     throw error;
-   }
- };
+      if (!response.ok) {
+        throw new Error("Failed to validate VIP user");
+      }
 
- // Function to check if campaign is currently active
- const isCampaignActive = (campaign) => {
-   const now = new Date();
-   const startDate = new Date(campaign.startDate);
-   const endDate = new Date(campaign.endDate);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error validating VIP user:", error);
+      throw error;
+    }
+  };
 
-   return now >= startDate && now <= endDate;
- };
+  // Function to check if campaign is currently active
+  const isCampaignActive = (campaign) => {
+    const now = new Date();
+    const startDate = new Date(campaign.startDate);
+    const endDate = new Date(campaign.endDate);
+    if (campaign.type === "CUSTOM_PROMOTIONS") {
+      return false;
+    }
+    return now >= startDate && now <= endDate;
+  };
 
- // Function to extract item code from product slug
- const getItemCodeFromSlug = (href) => {
-   try {
-     console.log("Extracting item code from slug:", href,productsListData);
-     // Extract slug from href like "/product/marv5rue_kd-14068839"
-     const slug = href.split('/product/')[1]?.split('-')[0];
-     console.log("Slug:", slug);
-     if (!slug || !productsListData?.items) {
-       return null;
-     }
+  // Function to extract item code from product slug
+  const getItemCodeFromSlug = (href) => {
+    try {
+      console.log("Extracting item code from slug:", href, productsListData);
+      // Extract slug from href like "/product/marv5rue_kd-14068839"
+      const slug = href.split("/product/")[1]?.split("-")[0];
+      console.log("Slug:", slug);
+      if (!slug || !productsListData?.items) {
+        return null;
+      }
 
-     // Find matching product in productsListData
-     const product = productsListData.items.find(p =>
-       p.slug?.toLowerCase() === slug?.toLowerCase()
-     );
+      // Find matching product in productsListData
+      const product = productsListData.items.find(
+        (p) => p.slug?.toLowerCase() === slug?.toLowerCase()
+      );
 
-     console.log("Matching product:", product);
-    
-     return product?.item_code || slug; // Fallback to slug if item_code not found
-   } catch (error) {
-     console.error("Error extracting item code from slug:", error);
-     return null;
-   }
- };
+      console.log("Matching product:", product);
 
- // Function to add VIP styles to document
- const addVIPStyles = () => {
-  console.log("adding vip styles");
-  //  if (document.getElementById('vip-protection-styles')) {
-  //   console.log("Styles already added");
-  //    return; // Styles already added
-  //  }
+      return product?.item_code || slug; // Fallback to slug if item_code not found
+    } catch (error) {
+      console.error("Error extracting item code from slug:", error);
+      return null;
+    }
+  };
 
-   const style = document.createElement('style');
-   style.id = 'vip-protection-styles';
-   style.textContent = `
+  // Function to add VIP styles to document
+  const addVIPStyles = () => {
+    console.log("adding vip styles");
+    //  if (document.getElementById('vip-protection-styles')) {
+    //   console.log("Styles already added");
+    //    return; // Styles already added
+    //  }
+
+    const style = document.createElement("style");
+    style.id = "vip-protection-styles";
+    style.textContent = `
    .vip-overlay {
      position: absolute !important;
      top: 0 !important;
@@ -212,283 +216,304 @@ export function Component({ props }) {
      transform: none !important;
    }
  `;
-   document.head.appendChild(style);
- };
+    document.head.appendChild(style);
+  };
 
- // Function to process product listing container
- const processProductListing = (campaignProductCodes, isVipUser) => {
-   console.log("Processing product listing...", { campaignProductCodes, isVipUser });
-  
-   // here we will make a specific id. and use get element by id and that id value will be coming from props.
+  // Function to process product listing container
+  const processProductListing = (campaignProductCodes, isVipUser) => {
+    console.log("Processing product listing...", {
+      campaignProductCodes,
+      isVipUser,
+    });
 
-   const container = document.querySelector('.product-listing__productContainer___oyoni');
-   if (!container) {
-     console.log("Product listing container not found");
-     return;
-   }
+    // here we will make a specific id. and use get element by id and that id value will be coming from props.
 
-   const productLinks = container.querySelectorAll('a[href*="/product/"]');
-  
-   console.log(`Found ${productLinks.length} product links`);
-  
-   productLinks.forEach((link, index) => {
-     const href = link.getAttribute('href');
-     console.log("Processing link:", href);
-     const itemCode = getItemCodeFromSlug(href);
-    
-     console.log(`Processing product ${index + 1}:`, { href, itemCode });
-    
-     if (itemCode) {
-       // Add CSS ID with item code
-       const productId = `product-${itemCode.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-       link.id = productId;
-      
-       // Check if product is VIP-only
-       const isVipProduct = campaignProductCodes.has(itemCode.toLowerCase());
-      
-       console.log(`Product ${itemCode}:`, { isVipProduct, isVipUser });
-      
-       if (isVipProduct && !isVipUser) {
-         console.log(`Blocking access to VIP product: ${itemCode}`);
-        
-         // Add disabled class to main link
-         link.classList.add('vip-product-disabled');
+    // const container = document.querySelector(
+    //   ".product-listing__productContainer___oyoni"
+    // );
 
-         const overlay = document.createElement('div');
-         overlay.className = 'vip-overlay';
-         overlay.innerHTML = `
+    const container = document.getElementById("fixed-plp-id");
+    if (!container) {
+      console.log("Product listing container not found");
+      return;
+    }
+
+    const productLinks = container.querySelectorAll('a[href*="/product/"]');
+
+    console.log(`Found ${productLinks.length} product links`);
+
+    productLinks.forEach((link, index) => {
+      const href = link.getAttribute("href");
+      console.log("Processing link:", href);
+      const itemCode = getItemCodeFromSlug(href);
+
+      console.log(`Processing product ${index + 1}:`, { href, itemCode });
+
+      if (itemCode) {
+        // Add CSS ID with item code
+        const productId = `product-${itemCode
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "-")}`;
+        link.id = productId;
+
+        // Check if product is VIP-only
+        const isVipProduct = campaignProductCodes.has(itemCode.toLowerCase());
+
+        console.log(`Product ${itemCode}:`, { isVipProduct, isVipUser });
+
+        if (isVipProduct && !isVipUser) {
+          console.log(`Blocking access to VIP product: ${itemCode}`);
+
+          // Add disabled class to main link
+          link.classList.add("vip-product-disabled");
+
+          const overlay = document.createElement("div");
+          overlay.className = "vip-overlay";
+          overlay.innerHTML = `
          <div class="vip-badge">VIP EXCLUSIVE</div>
          <div class="vip-message">Upgrade to VIP to unlock this product</div>
        `;
-        link.appendChild(overlay);
-        
-         // Disable navigation
-         link.addEventListener('click', (e) => {
-           e.preventDefault();
-           e.stopPropagation();
-           alert('This product is exclusive to VIP members only!');
-         });
-        
-      
-       } else {
-         // Remove any existing VIP restrictions if user becomes VIP
-         link.classList.remove('vip-product-disabled');
-         const existingOverlay = link.querySelector('.vip-overlay');
-         if (existingOverlay) {
-           existingOverlay.remove();
-         }
-       }
-     }
-   });
- };
+          link.appendChild(overlay);
 
- // MutationObserver for dynamic content
- const setupMutationObserver = (campaignProductCodes, isVipUser) => {
-   console.log("Setting up mutation observer...");
-  
-  //  const container = document.querySelector('.product-listing__productContainer___oyoni');
-  const container = document.getElementById('fixed-plp-id')
-   if (!container) {
-     console.log("Container not found for mutation observer");
-     return null;
-   }
+          // Disable navigation
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            alert("This product is exclusive to VIP members only!");
+          });
+        } else {
+          // Remove any existing VIP restrictions if user becomes VIP
+          link.classList.remove("vip-product-disabled");
+          const existingOverlay = link.querySelector(".vip-overlay");
+          if (existingOverlay) {
+            existingOverlay.remove();
+          }
+        }
+      }
+    });
+  };
 
-   const mutationObserver = new MutationObserver((mutations) => {
-     let shouldReprocess = false;
-    
-     mutations.forEach((mutation) => {
-       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-         // Check if any added nodes contain product links
-         mutation.addedNodes.forEach((node) => {
-           if (node.nodeType === 1) { // Element node
-             const hasProductLinks = node.querySelector && (
-               node.querySelector('a[href*="/product/"]') ||
-               node.matches && node.matches('a[href*="/product/"]')
-             );
-             if (hasProductLinks) {
-               shouldReprocess = true;
-             }
-           }
-         });
-       }
-     });
-    
-     if (shouldReprocess) {
-       console.log("New products detected, reprocessing...");
-       setTimeout(() => {
-         processProductListing(campaignProductCodes, isVipUser);
-       }, 100); // Small delay to ensure DOM is fully updated
-     }
-   });
+  // MutationObserver for dynamic content
+  const setupMutationObserver = (campaignProductCodes, isVipUser) => {
+    console.log("Setting up mutation observer...");
 
-   mutationObserver.observe(container, {
-     childList: true,
-     subtree: true
-   });
+    //  const container = document.querySelector('.product-listing__productContainer___oyoni');
+    const container = document.getElementById("fixed-plp-id");
+    if (!container) {
+      console.log("Container not found for mutation observer");
+      return null;
+    }
 
-   return mutationObserver;
- };
+    const mutationObserver = new MutationObserver((mutations) => {
+      let shouldReprocess = false;
 
- // Function to handle page route changes
- const handleRouteChange = (campaignProductCodes, isVipUser) => {
-   const currentPath = window.location.pathname;
-   console.log("Route change detected:", currentPath);
-  
-   // Check if we're on a listing page
-   if (currentPath.includes('/products') ||
-       currentPath.includes('/collections') ||
-       currentPath.includes('/category') ||
-       currentPath === '/') {
-    
-     // Wait for products to load then process
-     setTimeout(() => {
-       processProductListing(campaignProductCodes, isVipUser);
-     }, 500);
-   }
- };
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          // Check if any added nodes contain product links
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              // Element node
+              const hasProductLinks =
+                node.querySelector &&
+                (node.querySelector('a[href*="/product/"]') ||
+                  (node.matches && node.matches('a[href*="/product/"]')));
+              if (hasProductLinks) {
+                shouldReprocess = true;
+              }
+            }
+          });
+        }
+      });
 
- useEffect(() => {
-   const initializeVIPPLPProtection = async () => {
-     try {
-       setLoading(true);
-       setError(null);
+      if (shouldReprocess) {
+        console.log("New products detected, reprocessing...");
+        setTimeout(() => {
+          processProductListing(campaignProductCodes, isVipUser);
+        }, 100); // Small delay to ensure DOM is fully updated
+      }
+    });
 
-       // Add VIP styles to document
-       addVIPStyles();
+    mutationObserver.observe(container, {
+      childList: true,
+      subtree: true,
+    });
 
-       // Step 1: Fetch campaign data
-       console.log("Fetching campaign data...");
-       const campaignResponse = await fetchCampaignData();
+    return mutationObserver;
+  };
 
-       if (campaignResponse.success && campaignResponse.data.length > 0) {
-         const campaigns = campaignResponse.data;
+  // Function to handle page route changes
+  const handleRouteChange = (campaignProductCodes, isVipUser) => {
+    const currentPath = window.location.pathname;
+    console.log("Route change detected:", currentPath);
 
-         // Check for active campaigns
-         const activeCampaigns = campaigns.filter((campaign) =>
-           isCampaignActive(campaign)
-         );
+    // Check if we're on a listing page
+    if (
+      currentPath.includes("/products") ||
+      currentPath.includes("/collections") ||
+      currentPath.includes("/category") ||
+      currentPath === "/"
+    ) {
+      // Wait for products to load then process
+      setTimeout(() => {
+        processProductListing(campaignProductCodes, isVipUser);
+      }, 500);
+    }
+  };
 
-         if (activeCampaigns.length > 0) {
-           console.log("Active campaigns found:", activeCampaigns);
-           const activeCampaign = activeCampaigns[0];
-           setCampaignData(activeCampaign);
+  useEffect(() => {
+    const initializeVIPPLPProtection = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-           // Step 2: Validate VIP user
-           console.log("Validating VIP user...");
-           const userResponse = await validateVIPUser();
-           let isVipUser = false;
-          
-           if (userResponse.success && userResponse.data && userResponse.data.length > 0) {
-             console.log("VIP user validation successful:", userResponse.data);
-             setUserValidation(userResponse.data[0]);
-             isVipUser = true;
-           } else {
-             console.log("VIP user validation failed - user is not VIP");
-             setUserValidation(null);
-             isVipUser = false;
-           }
+        // Add VIP styles to document
+        addVIPStyles();
 
-           // Step 3: Create campaign product codes set
-           // For testing - using hardcoded data
-          //  const campaignProducts = [
-          //    { item_code: "marv5rue_KD" },
-          //    // Add more products from activeCampaign.products when available
-          //  ];
+        // Step 1: Fetch campaign data
+        console.log("Fetching campaign data...");
+        const campaignResponse = await fetchCampaignData();
 
-           const campaignProductCodes = new Set(
-             activeCampaign.products.map((product) => product.item_code?.toLowerCase())
-           );
+        if (campaignResponse.success && campaignResponse.data.length > 0) {
+          const campaigns = campaignResponse.data;
 
-           console.log("Campaign product codes:", campaignProductCodes);
-           console.log("Is VIP user:", isVipUser);
+          // Check for active campaigns
+          const activeCampaigns = campaigns.filter((campaign) =>
+            isCampaignActive(campaign)
+          );
 
-           // Step 4: Process current page
-           handleRouteChange(campaignProductCodes, isVipUser);
+          if (activeCampaigns.length > 0) {
+            console.log("Active campaigns found:", activeCampaigns);
+            const activeCampaign = activeCampaigns[0];
+            setCampaignData(activeCampaign);
 
-           // Step 5: Setup mutation observer
-           const mutationObserver = setupMutationObserver(campaignProductCodes, isVipUser);
-           setObserver(mutationObserver);
+            // Step 2: Validate VIP user
+            console.log("Validating VIP user...");
+            const userResponse = await validateVIPUser();
+            let isVipUser = false;
 
-           // Step 6: Listen for route changes (for SPA navigation)
-           const originalPushState = history.pushState;
-           const originalReplaceState = history.replaceState;
+            if (
+              userResponse.success &&
+              userResponse.data &&
+              userResponse.data.length > 0
+            ) {
+              console.log("VIP user validation successful:", userResponse.data);
+              setUserValidation(userResponse.data[0]);
+              isVipUser = true;
+            } else {
+              console.log("VIP user validation failed - user is not VIP");
+              setUserValidation(null);
+              isVipUser = false;
+            }
 
-           history.pushState = function(...args) {
-             originalPushState.apply(this, args);
-             setTimeout(() => handleRouteChange(campaignProductCodes, isVipUser), 100);
-           };
+            // Step 3: Create campaign product codes set
+            // For testing - using hardcoded data
+            //  const campaignProducts = [
+            //    { item_code: "marv5rue_KD" },
+            //    // Add more products from activeCampaign.products when available
+            //  ];
 
-           history.replaceState = function(...args) {
-             originalReplaceState.apply(this, args);
-             setTimeout(() => handleRouteChange(campaignProductCodes, isVipUser), 100);
-           };
+            const campaignProductCodes = new Set(
+              activeCampaign.products.map((product) =>
+                product.item_code?.toLowerCase()
+              )
+            );
 
-           window.addEventListener('popstate', () => {
-             setTimeout(() => handleRouteChange(campaignProductCodes, isVipUser), 100);
-           });
+            console.log("Campaign product codes:", campaignProductCodes);
+            console.log("Is VIP user:", isVipUser);
 
-         } else {
-           console.log("No active campaigns found");
-           setCampaignData(null);
-         }
-       } else {
-         console.log("No campaigns found");
-         setCampaignData(null);
-       }
-     } catch (err) {
-       console.error("Error in VIP PLP protection process:", err);
-       setError(err.message);
-     } finally {
-       setLoading(false);
-     }
-   };
+            // Step 4: Process current page
+            handleRouteChange(campaignProductCodes, isVipUser);
 
-   initializeVIPPLPProtection();
+            // Step 5: Setup mutation observer
+            const mutationObserver = setupMutationObserver(
+              campaignProductCodes,
+              isVipUser
+            );
+            setObserver(mutationObserver);
 
-   // Cleanup function
-   return () => {
-     if (observer) {
-       observer.disconnect();
-     }
-   };
- }, [productsListData, pageDetails]);
+            // Step 6: Listen for route changes (for SPA navigation)
+            const originalPushState = history.pushState;
+            const originalReplaceState = history.replaceState;
 
- // Re-process when products data changes (infinite scroll, filters, etc.)
- useEffect(() => {
-   if (campaignData && userValidation !== undefined) {
-    
+            history.pushState = function (...args) {
+              originalPushState.apply(this, args);
+              setTimeout(
+                () => handleRouteChange(campaignProductCodes, isVipUser),
+                100
+              );
+            };
 
-     const campaignProductCodes = new Set(
-       activeCampaign[0].products.map((product) => product.item_code?.toLowerCase())
-     );
+            history.replaceState = function (...args) {
+              originalReplaceState.apply(this, args);
+              setTimeout(
+                () => handleRouteChange(campaignProductCodes, isVipUser),
+                100
+              );
+            };
 
-     const isVipUser = userValidation !== null;
+            window.addEventListener("popstate", () => {
+              setTimeout(
+                () => handleRouteChange(campaignProductCodes, isVipUser),
+                100
+              );
+            });
+          } else {
+            console.log("No active campaigns found");
+            setCampaignData(null);
+          }
+        } else {
+          console.log("No campaigns found");
+          setCampaignData(null);
+        }
+      } catch (err) {
+        console.error("Error in VIP PLP protection process:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-     setTimeout(() => {
-       processProductListing(campaignProductCodes, isVipUser);
-     }, 100);
-   }
- }, [productsListData]);
+    initializeVIPPLPProtection();
 
- if (loading) {
-   return (
-     <div style={{ display: 'none' }}>
-       {/* VIP PLP Protection Loading... */}
-     </div>
-   );
- }
+    // Cleanup function
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [productsListData, pageDetails]);
 
- if (error) {
-   console.error("VIP PLP Protection Error:", error);
- }
+  // Re-process when products data changes (infinite scroll, filters, etc.)
+  useEffect(() => {
+    if (campaignData && userValidation !== undefined) {
+      const campaignProductCodes = new Set(
+        activeCampaign[0].products.map((product) =>
+          product.item_code?.toLowerCase()
+        )
+      );
 
- // Component runs protection logic in background
- return (
-   <>
-     
-     {/* Component runs VIP protection logic in background */}
-   </>
- );
+      const isVipUser = userValidation !== null;
+
+      setTimeout(() => {
+        processProductListing(campaignProductCodes, isVipUser);
+      }, 100);
+    }
+  }, [productsListData]);
+
+  if (loading) {
+    return (
+      <div style={{ display: "none" }}>
+        {/* VIP PLP Protection Loading... */}
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("VIP PLP Protection Error:", error);
+  }
+
+  // Component runs protection logic in background
+  return <>{/* Component runs VIP protection logic in background */}</>;
 }
 
 export const settings = {
@@ -500,7 +525,7 @@ export const settings = {
       label: "Page Title",
       type: "text",
       default: "Extension Title",
-      info: "Page Title",
+      info: "Add this id to the PLP container besides this class product-listing__productContainer : fixed-plp-id",
     },
   ],
   blocks: [],
